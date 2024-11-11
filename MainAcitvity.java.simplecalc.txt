@@ -1,0 +1,101 @@
+package com.example.simplecalculator;
+
+import androidx.activity.ComponentActivity;
+import androidx.appcompat.app.AppCompatActivity;
+import android.os.Bundle;
+import android.widget.Button;
+import android.widget.TextView;
+
+public class MainActivity extends ComponentActivity {
+
+    private TextView display;
+    private String currentInput = "";
+    private String lastOperator = "";
+    private double result = 0;
+
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        display = findViewById(R.id.display);
+
+        // Initialize number and operator buttons
+        setNumberButtonListeners();
+        setOperatorButtonListeners();
+    }
+
+    private void setNumberButtonListeners() {
+        int[] numberButtonIds = {
+                R.id.btn0, R.id.btn1, R.id.btn2, R.id.btn3, R.id.btn4,
+                R.id.btn5, R.id.btn6, R.id.btn7, R.id.btn8, R.id.btn9, R.id.btnDot
+        };
+
+        for (int id : numberButtonIds) {
+            findViewById(id).setOnClickListener(v -> {
+                Button button = (Button) v;
+                currentInput += button.getText().toString();
+                display.setText(currentInput);
+            });
+        }
+    }
+
+    private void setOperatorButtonListeners() {
+        int[] operatorButtonIds = {R.id.btnAdd, R.id.btnSubtract, R.id.btnMultiply, R.id.btnDivide};
+
+        for (int id : operatorButtonIds) {
+            findViewById(id).setOnClickListener(v -> {
+                Button button = (Button) v;
+                calculateResult();
+                lastOperator = button.getText().toString();
+                currentInput = "";
+            });
+        }
+
+        findViewById(R.id.btnEquals).setOnClickListener(v -> {
+            calculateResult();
+            display.setText(String.valueOf(result));
+            lastOperator = "";
+            currentInput = "";
+        });
+
+        findViewById(R.id.btnClear).setOnClickListener(v -> {
+            currentInput = "";
+            lastOperator = "";
+            result = 0;
+            display.setText("0");
+        });
+    }
+
+    private void calculateResult() {
+        if (!currentInput.isEmpty()) {
+            double currentNumber = Double.parseDouble(currentInput);
+            switch (lastOperator) {
+                case "+":
+                    result += currentNumber;
+                    break;
+                case "-":
+                    result -= currentNumber;
+                    break;
+                case "*":
+                    result *= currentNumber;
+                    break;
+                case "/":
+                    if (currentNumber != 0) {
+                        result /= currentNumber;
+                    } else {
+                        display.setText("Error");
+                        currentInput = "";
+                        lastOperator = "";
+                        result = 0;
+                        return;
+                    }
+                    break;
+                default:
+                    result = currentNumber;
+                    break;
+            }
+            display.setText(String.valueOf(result));
+        }
+    }
+}
